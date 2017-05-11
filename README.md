@@ -1,2 +1,4 @@
 # dl4nlp
-This contains word level quality estimation and RNN bases Parts-of-Speech-Tagger
+This contains:
+-RNN based system for word level quality estimation 
+-Parts-of-Speech-Tagger for Code-mixed social media text
