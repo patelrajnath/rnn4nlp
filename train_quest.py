@@ -59,7 +59,9 @@ def train(dim_word=100,  # word vector dimensionality
     	if not os.path.exists(folder): os.mkdir(folder)
 
 	model_options = OrderedDict(sorted(locals().copy().items()))
-	print model_options
+
+	print 'Model_Options:', model_options
+
 	model_name = model_options['use_model']
 	if use_adadelta:
 		model_name += '_adadelta'
@@ -67,7 +69,8 @@ def train(dim_word=100,  # word vector dimensionality
 		model_name += '_bilingual'
 	if use_pretrain:
 		model_name += '_pretrain'
-	print model_name
+
+	print 'Using model:', model_name
 
 	processed_data = preprocess_data(data_train=model_options['data_train'], 
 		data_train_y=model_options['data_train_y'][0],
@@ -86,7 +89,7 @@ def train(dim_word=100,  # word vector dimensionality
 	train_s, train_t = train
 	test_s, test_t = test
 	valid_s, valid_t = valid
-	print test_t[0], test_s[0], test_y[0]
+	#print test_t[0], test_s[0], test_y[0]
 
     	vocsize_s = len(w2idxs[0])
     	vocsize_t = len(w2idxs[1])
@@ -204,5 +207,5 @@ if __name__ == '__main__':
                          help="network vocabularies (source and target vocabulary)")
 	args = parser.parse_args()
 
-	print vars(args)
+	#print vars(args)
 	train(**vars(args))
