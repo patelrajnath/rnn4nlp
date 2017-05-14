@@ -44,7 +44,14 @@ def read_pretrained_embedding(words_vector_file):
     return word2idx, embedding
 
 def word2index(fname, word2idx):
-    
+
+    """
+	fname: the file name to be converted into idx representation
+	word2idx: a mapping from word to ids
+
+	Usage: returns processed data with words converted to ids
+    """
+
     fin = codecs.open(fname, 'r', 'utf-8')
     data = []
     
@@ -60,6 +67,7 @@ def word2index(fname, word2idx):
         data.append(np.asarray(sent_idx))
         
     return data
+
 
 def process_embedding(words_vector_file):
     """
