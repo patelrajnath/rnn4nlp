@@ -2,5 +2,4 @@
 
 import sys
 import os
-import codecs
 
