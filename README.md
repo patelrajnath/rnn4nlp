@@ -44,7 +44,7 @@ Create vocab for training-
 
 ```sh
 
-$python utils/build_dictionary.py data/pos/train/train.txt
+$python utils/build_dictionary.py data/pos/hi-en.train.txt
 
 ```
 
