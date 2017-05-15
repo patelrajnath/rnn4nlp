@@ -55,11 +55,10 @@ def train(dim_word=100,  # word vector dimensionality
           use_pretrain=False,
           use_quest=False,
           use_tag=False,
+          saveto=False,
           shuffle_each_epoch=True,
     ):
 
-	folder = os.path.basename(__file__).split('.')[0]
-    	if not os.path.exists(folder): os.mkdir(folder)
 
 	model_options = OrderedDict(sorted(locals().copy().items()))
 
@@ -74,6 +73,8 @@ def train(dim_word=100,  # word vector dimensionality
 		model_name += '_pretrain'
 
 	print 'Using model:', model_name
+	folder = model_name
+    	if not os.path.exists(folder): os.mkdir(folder)
 
 	processed_data = preprocess_data(data_train=model_options['data_train'], 
 		data_train_y=model_options['data_train_y'][0],
@@ -83,6 +84,14 @@ def train(dim_word=100,  # word vector dimensionality
 		embeddings = model_options['embeddings'],
 		use_bilingual=model_options['use_bilingual'], 
 		use_pretrain=model_options['use_pretrain'])
+
+	"""
+	Savin the model with model_name
+	"""
+	save_data = 'data_'+folder+'.pkl.gz'
+	if saveto:
+		with gzip.open(save_data,'wb') as fp:
+       			cPickle.dump(processed_data, fp)
 
 	train, train_y, test, test_y, valid, valid_y, w2idxs, label2idxs, embs = processed_data
 	idx2label = dict((k,v) for v,k in label2idxs.iteritems())
@@ -254,6 +263,8 @@ if __name__ == '__main__':
 	data.add_argument('--use_pretrain', action="store_true",
                          help="use pretarining (default: %(default)s)")
 	data.add_argument('--use_adadelta', action="store_false",
+                         help="use adaptive learning rate (default: %(default)s)")
+	data.add_argument('--saveto', action="store_true",
                          help="use adaptive learning rate (default: %(default)s)")
 	args = parser.parse_args()
 
