@@ -68,7 +68,7 @@ If you use this project, please cite the following papers:
   address   = {Berlin, Germany},
   publisher = {Association for Computational Linguistics},
   pages     = {819--824},
-  url       = {http://www.aclweb.org/anthology/W/W16/W16-2389}
+  url       = {http://www.statmt.org/wmt16/pdf/W16-2389.pdf}
 }
 
  
@@ -77,6 +77,7 @@ If you use this project, please cite the following papers:
   author={Patel, Raj Nath and Pimpale, Prakash B and Sasikumat, M},
   journal={arXiv preprint arXiv:1611.04989},
   year={2016}
+  url = {https://arxiv.org/pdf/1611.04989.pdf}
 }
 
 
