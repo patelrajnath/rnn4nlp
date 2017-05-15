@@ -121,7 +121,7 @@ def train(dim_word=100,  # word vector dimensionality
     	# train with early stopping on validation set
     	best_f1 = -numpy.inf
     	model_options['patience'] = 2
-    	batch_size = 100
+    	batch_size = (nsentences/100) * 10
     	n_batches = nsentences//batch_size
     	print n_batches
     	for e in xrange(model_options['max_epochs']):
