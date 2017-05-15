@@ -1,4 +1,4 @@
-# rnn4nlp
+# Recurrent Neural Networks for Natural Language Processing (rnn4nlp)
 This contains:
 
 (1) RNN based system for word level quality estimation. 
