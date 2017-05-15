@@ -34,7 +34,7 @@ And then run the training script-
 
 ```sh
 
-$bash train-qe.sh
+$bash qe-train.sh
 
 ```
 
@@ -52,7 +52,7 @@ And then run the training script-
 
 ```sh 
 
-$bash train-tag.sh
+$bash tag-train.sh
 
 ```
 ## Publications:
@@ -60,24 +60,40 @@ $bash train-tag.sh
 If you use this project, please cite the following papers:
 
 * @InProceedings{patel-m:2016:WMT,
+
   author    = {Patel, Raj Nath  and  M, Sasikumar},
+
   title     = {Translation Quality Estimation using Recurrent Neural Network},
+
   booktitle = {Proceedings of the First Conference on Machine Translation},
+
   month     = {August},
+
   year      = {2016},
+
   address   = {Berlin, Germany},
+
   publisher = {Association for Computational Linguistics},
+
   pages     = {819--824},
+
   url       = {http://www.statmt.org/wmt16/pdf/W16-2389.pdf}
+
 }
 
  
 * @article{patel2016recurrent,
+
   title={Recurrent Neural Network based Part-of-Speech Tagger for Code-Mixed Social Media Text},
+
   author={Patel, Raj Nath and Pimpale, Prakash B and Sasikumat, M},
+
   journal={arXiv preprint arXiv:1611.04989},
+
   year={2016}
+
   url = {https://arxiv.org/pdf/1611.04989.pdf}
+
 }
 
 
