@@ -58,4 +58,17 @@ $bash train-tag.sh
 
 ## Author 
 
-Raj Nath Patel (patelrajnath@gmail.com [PlDb] )
+Raj Nath Patel (patelrajnath@gmail.com)
+
+## Version
+
+0.1
+
+## LICENSE
+
+Copyright Raj Nath Patel 2017 - present
+
+rnn4nlp is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+
+You should have received a copy of the GNU General Public License along with Indic NLP Library. If not, see http://www.gnu.org/licenses/.
+
