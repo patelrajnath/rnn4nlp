@@ -166,10 +166,11 @@ def preprocess_data(data_train, data_train_y, data_test, data_test_y, data_valid
 		assert embeddings, "word embedding must be provided when using --use_pretrain"
 	if use_pretrain and use_bilingual:
 		assert len(embeddings) == 2, "enbedding for both source and target must be provided when using --use_pretrain and --use_bilingual"
-
+	
 	#get the aligned src as per the alignment file and target
-	data_sets = get_aligned_src([data_train, data_test, data_valid])
-	data_train, data_test, data_valid = data_sets
+	if use_bilingual:
+		data_sets = get_aligned_src([data_train, data_test, data_valid])
+		data_train, data_test, data_valid = data_sets
 
 	#init empty lists for various data sets
 	w2idxs, embs, train, train_y, test, test_y, valid, valid_y = ([] for i in range(8))
