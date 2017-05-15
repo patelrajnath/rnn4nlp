@@ -55,3 +55,7 @@ And then run the training script-
 $bash train-tag.sh
 
 ```
+
+## Author 
+
+Raj Nath Patel (patelrajnath@gmail.com [PlDb] )
