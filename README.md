@@ -19,9 +19,9 @@ This include the implementation of varous RNN models including simple Recurrent 
 
 # Quick Start
 
-Quality estimation with toy data:
+### Quality estimation with toy data:
 
-Create the vocab for training as follows-
+Create the vocab for training-
 
 ```sh
 
@@ -36,5 +36,16 @@ And then run the training script-
 ```sh
 
 $bash train-qe.sh
+
+```
+
+### Parts of tagging with toy data
+
+Create vocab for training-
+
+```sh
+
+$
+
 
 ```
