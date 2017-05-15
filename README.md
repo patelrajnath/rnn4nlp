@@ -38,7 +38,7 @@ $bash train-qe.sh
 
 ```
 
-### Parts of tagging with toy data
+### Parts-of-Speech tagging with toy data:
 
 Create vocab for training-
 
@@ -46,5 +46,12 @@ Create vocab for training-
 
 $python utils/build_dictionary.py data/pos/train/train.txt
 
+```
+
+And then run the training script-
+
+```sh 
+
+$bash train-tag.sh
 
 ```
