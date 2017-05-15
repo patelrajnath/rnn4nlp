@@ -25,8 +25,8 @@ Create the vocab for training-
 
 ```sh
 
-$python utils/build\_dictionary.py data/qe/train/train.src.lc
-$python utils/build\_dictionary.py data/qe/train/train.mt.lc
+$python utils/build_dictionary.py data/qe/train/train.src.lc
+$python utils/build_dictionary.py data/qe/train/train.mt.lc
 
 ```
 
@@ -44,7 +44,7 @@ Create vocab for training-
 
 ```sh
 
-$
+$python utils/build_dictionary.py data/pos/train/train.txt
 
 
 ```
