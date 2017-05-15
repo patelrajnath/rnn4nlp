@@ -15,7 +15,7 @@ This includes the implementation of various RNN models including simple Recurren
 
 - numpy (1.11.1+)
 
-- scipy (0.18.0+)
+- python-sklearn (0.17+)
 
 # Quick Start
 
