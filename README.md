@@ -34,7 +34,7 @@ And then run the training script-
 
 ```sh
 
-$bash qe-train.sh
+$bash train-qe.sh
 
 ```
 
@@ -52,7 +52,7 @@ And then run the training script-
 
 ```sh 
 
-$bash tag-train.sh
+$bash train-tag.sh
 
 ```
 ## Publications:
