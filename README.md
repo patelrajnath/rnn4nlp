@@ -26,7 +26,6 @@ Create the vocab for training-
 ```sh
 
 $python utils/build\_dictionary.py data/qe/train/train.src.lc
-
 $python utils/build\_dictionary.py data/qe/train/train.mt.lc
 
 ```
