@@ -23,10 +23,18 @@ Quality estimation with toy data:
 
 Create the vocab for training as follows-
 
+```sh
+
 $python utils/build\_dictionary.py data/qe/train/train.src.lc
 
 $python utils/build\_dictionary.py data/qe/train/train.mt.lc
 
+```
+
 And then run the training script-
 
+```sh
+
 $bash bash train-qe.sh
+
+```
