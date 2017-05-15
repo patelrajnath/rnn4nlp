@@ -7,8 +7,9 @@ import gzip
 import cPickle
 import time
 import argparse
-import  subprocess
+import subprocess
 import numpy 
+import json
 
 from collections import OrderedDict
 from rnn import GRU
@@ -73,8 +74,7 @@ def train(dim_word=100,  # word vector dimensionality
 		model_name += '_pretrain'
 
 	print 'Using model:', model_name
-	folder = model_name
-    	if not os.path.exists(folder): os.mkdir(folder)
+	
 
 	processed_data = preprocess_data(data_train=model_options['data_train'], 
 		data_train_y=model_options['data_train_y'][0],
@@ -86,12 +86,20 @@ def train(dim_word=100,  # word vector dimensionality
 		use_pretrain=model_options['use_pretrain'])
 
 	"""
-	Savin the model with model_name
+	Savinn the model/data with model_name
 	"""
-	save_data = 'data_'+folder+'.pkl.gz'
+	save_data = folder = ''
+	if use_tag:
+		save_data = 'tag.data_' + model_name + '.pkl.gz'
+		folder = 'tag.' + model_name
+	if use_quest:
+		save_data = 'quest.data_' + model_name + '.pkl.gz'
+		folder = 'quest.' + model_name
+
 	if saveto:
 		with gzip.open(save_data,'wb') as fp:
        			cPickle.dump(processed_data, fp)
+    	if not os.path.exists(folder): os.mkdir(folder)
 
 	train, train_y, test, test_y, valid, valid_y, w2idxs, label2idxs, embs = processed_data
 	idx2label = dict((k,v) for v,k in label2idxs.iteritems())
@@ -220,7 +228,15 @@ def train(dim_word=100,  # word vector dimensionality
 		  current_score = res_valid[1]
 
                 if current_score > best_f1:
+
+		    """
+			Save the model and model parameters
+		    """
                     rnn.save(folder)
+		    filename = folder +'/model'
+		    with open('%s.json'%filename, 'wb') as f:
+			  json.dump(model_options, f, indent=2)
+
                     best_f1 = current_score
                     if model_options['verbose']:
                         print 'NEW BEST: epoch', e, 'valid F1', res_valid, 'test F1' , res_test , ' '*20
