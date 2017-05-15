@@ -68,6 +68,8 @@ def contextwin_nextWord(l, win):
     assert len(out) == len(l)
     return out
 
-a = [1,2,3,5,6]
-print contextwin_nextWord(a, 4)
+
+if __name__ == '__main__'
+	a = [1,2,3,5,6]
+	print contextwin_nextWord(a, 4)
 
