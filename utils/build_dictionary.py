@@ -65,14 +65,14 @@ def save_dict(word_freqs, filename):
 def _main(file_name, freq=5):
 	print "Preparing vocab..."
 	vocab = get_vocab(file_name)
-	print "Saving vocab..."
+	print "Saving vocab:", file_name+'.json'
 	save_dict(vocab, file_name)
-	print len(vocab)
+	print 'SIZE:', len(vocab)
 	print "Getting vocab with freq >= 5"
 	vocab_wf = vocab_with_frequency(vocab, freq)
-	print "Saving vocab..."
+	print "Saving vocab:", file_name+'.freq5.json'
 	save_dict(vocab_wf, file_name + '.freq5')
-	print len(vocab_wf)
+	print 'SIZE:', len(vocab_wf)
 
 if __name__ == '__main__':
 
