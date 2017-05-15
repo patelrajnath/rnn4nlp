@@ -69,7 +69,7 @@ def contextwin_nextWord(l, win):
     return out
 
 
-if __name__ == '__main__'
+if __name__ == '__main__':
 	a = [1,2,3,5,6]
 	print contextwin_nextWord(a, 4)
 
