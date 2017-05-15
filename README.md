@@ -35,6 +35,6 @@ And then run the training script-
 
 ```sh
 
-$bash bash train-qe.sh
+$bash train-qe.sh
 
 ```
