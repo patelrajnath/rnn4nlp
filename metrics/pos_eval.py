@@ -13,6 +13,7 @@ def weighted_fmeasure(y_true, y_pred):
     return f1_score(y_true, y_pred, average='weighted', pos_label=None)
 
 def score_icon_plain(ref_file, hyp_file, n_significance_tests=20):
+
     ref_tags = read_tag_file(ref_file)
     hyp_tags = read_tag_file(hyp_file)
 
@@ -30,5 +31,35 @@ def score_icon_plain(ref_file, hyp_file, n_significance_tests=20):
     # END EVALUATION
     return [actual_class_f1, actual_average_f1]
 
+def icon_eval(p, g, filename):
+    '''
+    INPUT:
+    p :: predictions
+    g :: groundtruth
+    w :: corresponding words
+
+    OUTPUT:
+    filename :: name of the file where the predictions
+    are written. it will be the input of score_wmt_plain method
+    for computing the performance in terms of precision
+    recall and f1 score
+    '''
+
+    ref = filename+'.ref'
+    hyp = filename+'.hyp'
+    f_ref = codecs.open(ref , 'w' , 'utf-8')
+    f_hyp = codecs.open(hyp , 'w' , 'utf-8')
+
+    for sp, sg in zip(p, g):
+	sg1 = ' '.join(sg).strip()
+	sp1 = ' '.join(sp).strip()
+        f_hyp.write( sp1 + '\n')
+        f_ref.write( sg1 +'\n')
+
+    f_hyp.close()
+    f_ref.close()  
+
+    return score_icon_plain(ref, hyp)
+
 if __name__ == '__main__':
-	print score_icon_plain(sys.argv[1], sys.argv[2])
+	print icon_eval(sys.argv[1], sys.argv[2])
