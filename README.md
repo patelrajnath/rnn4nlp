@@ -1,7 +1,7 @@
 # rnn4nlp
 This contains:
 
-(1)RNN based system for word level quality estimation. 
+(1) RNN based system for word level quality estimation. 
 
 (2) Parts-of-Speech-Tagger for Code-mixed social media text. 
 
@@ -9,10 +9,12 @@ This include the implementation of varous RNN models including simple Recurrent 
 
 # Pre-requisites
 
-- python
+- python (2.7+)
 
-- Theano ()
+- Theano (0.8+; http://deeplearning.net/software/theano/)
 
-- numpy
+- numpy (1.11.1+)
 
-- scipy 
+- scipy (0.18.0+)
+
+
