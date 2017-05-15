@@ -104,13 +104,9 @@ def train(dim_word=100,  # word vector dimensionality
 		valid_t = valid[0]
     		vocsize_t = len(w2idxs[0])
 
-	#print test_t[0], test_s[0], test_y[0]
-
     	nclasses = len(label2idxs)
     	nsentences = len(train_t)
 
-	print nsentences
-	
     	numpy.random.seed(model_options['seed'])
     	# instanciate the model
     	rnn = select_model[model_name]( nh = model_options['dim'],
@@ -233,16 +229,6 @@ if __name__ == '__main__':
 	parser = argparse.ArgumentParser()
 
 	data = parser.add_argument_group('data sets; model loading and saving')
-	data.add_argument('--use_quest', action="store_true",
-                         help="use for quality estimation (default: %(default)s)")
-	data.add_argument('--use_tag', action="store_true",
-                         help="use for tagging task (default: %(default)s)")
-	data.add_argument('--use_bilingual', action="store_true",
-                         help="use bilingual model (default: %(default)s)")
-	data.add_argument('--use_pretrain', action="store_true",
-                         help="use pretarining (default: %(default)s)")
-	data.add_argument('--use_adadelta', action="store_false",
-                         help="use adaptive learning rate (default: %(default)s)")
 	data.add_argument('--data_train', type=str, required=True, metavar='PATH', nargs="+",
                          help="parallel training corpus (source, target and alignment)")
 	data.add_argument('--data_train_y', type=str, required=True, metavar='PATH', nargs=1,
@@ -259,6 +245,16 @@ if __name__ == '__main__':
                          help="network vocabularies (source and target vocabulary)")
 	data.add_argument('--embeddings', type=str, metavar='PATH', nargs="+",
                          help="network vocabularies (source and target vocabulary)")
+	data.add_argument('--use_quest', action="store_true",
+                         help="use for quality estimation (default: %(default)s)")
+	data.add_argument('--use_tag', action="store_true",
+                         help="use for tagging task (default: %(default)s)")
+	data.add_argument('--use_bilingual', action="store_true",
+                         help="use bilingual model (default: %(default)s)")
+	data.add_argument('--use_pretrain', action="store_true",
+                         help="use pretarining (default: %(default)s)")
+	data.add_argument('--use_adadelta', action="store_false",
+                         help="use adaptive learning rate (default: %(default)s)")
 	args = parser.parse_args()
 
 	#print vars(args)
