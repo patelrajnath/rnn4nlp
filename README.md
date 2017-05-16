@@ -41,9 +41,16 @@ And then run the training script-
 $bash train-qe.sh
 
 ```
+Testing with new test-set-
 
+```sh
 
-### Parts-of-Speech tagging with toy data:
+$bash test-qe.sh
+
+```
+Note: You can specifiy any text for testing but dictionaries and label2index should be the same as used in the training time
+
+### Part-of-Speech tagging with toy data:
 
 Create vocab for training-
 
@@ -64,8 +71,14 @@ And then run the training script-
 $bash train-tag.sh
 
 ```
+Testing with new test-set-
 
+```sh
 
+$bash test-tag.sh
+
+```
+Note: You can specifiy any text for testing but dictionaries and label2index should be the same as used in the training time
 
 ## Publications:
 
