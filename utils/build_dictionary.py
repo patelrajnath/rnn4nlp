@@ -53,12 +53,12 @@ def save_dict(word_freqs, filename, flag=None):
 
         worddict = OrderedDict()
 
-	if flag is None:
+	if flag == 0:
         	worddict['eos'] = 0
         	worddict['UNK'] = 1
         	for ii, ww in enumerate(sorted_words):
             		worddict[ww] = ii+2
-	else:
+	if flag == 1:
         	for ii, ww in enumerate(sorted_words):
             		worddict[ww] = ii
 
@@ -81,6 +81,6 @@ def _main(file_name, flag, freq=5):
 if __name__ == '__main__':
 
 	if len(sys.argv) != 3:
-		print 'Usage: python ', sys.argv[0], 'corpus_file'
+		print 'Usage: python ', sys.argv[0], 'corpus_file' '0/1 for text/label'
 		exit()
-	_main(sys.argv[1], sys.argv[2])		
+	_main(sys.argv[1], int(sys.argv[2]))		
