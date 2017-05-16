@@ -7,7 +7,7 @@ This repository contains:
 
 This includes the implementation of various RNN models including simple Recurrent Neural Network, Long-Short Term Memory (LSTM), DeepLSTM, and Gated Recurrent Units (GRU) aka Gated Hidden Units (GHU). The system is flexible to be used for any word level NLP tagging task like Named Entity Recognition etc.
 
-# Pre-requisites
+## Pre-requisites
 
 - python (2.7+)
 
@@ -17,7 +17,7 @@ This includes the implementation of various RNN models including simple Recurren
 
 - python-sklearn (0.17+)
 
-# Quick Start
+## Quick Start
 
 #### Quality estimation with toy data:
 
