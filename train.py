@@ -18,11 +18,12 @@ from utils.data_preprocess import preprocess_data
 from metrics.qe_eval import wmt_eval
 from metrics.pos_eval import icon_eval
 
-select_model = {"GRU_adadelta_bilingual_pretrain": GRU.GRU_adadelta_bilingual_pretrain,
+select_model = {
+		"GRU_adadelta_bilingual_pretrain": GRU.GRU_adadelta_bilingual_pretrain,
 		"GRU_adadelta_bilingual": GRU.GRU_adadelta_bilingual, 
 		"GRU_adadelta_pretrain": GRU.GRU_adadelta_pretrain,
 		"GRU_adadelta": GRU.GRU_adadelta,
-		"GRU": GRU.GRU}
+		}
 
 def train(dim_word=100,  # word vector dimensionality
           dim=100,  # the number of LSTM units
@@ -49,6 +50,7 @@ def train(dim_word=100,  # word vector dimensionality
           data_test_y = 'data/qe/test/test.tags',
           dictionaries=['data/qe/train/train.src.lc.json',
               'data/qe/train/train.mt.lc.json'],
+	  label2index = 'data/qe/train/train.tags.json',
           embeddings=['data/qe/pretrain/ep_qe.en.vector.txt',
               'data/qe/pretrain/ep_qe.de.vector.txt'],
 	  use_adadelta=True,
@@ -60,9 +62,7 @@ def train(dim_word=100,  # word vector dimensionality
           shuffle_each_epoch=True,
     ):
 
-
 	model_options = OrderedDict(sorted(locals().copy().items()))
-
 	print 'Model_Options:', model_options
 
 	model_name = model_options['use_model']
@@ -75,12 +75,12 @@ def train(dim_word=100,  # word vector dimensionality
 
 	print 'Using model:', model_name
 	
-
 	processed_data = preprocess_data(data_train=model_options['data_train'], 
 		data_train_y=model_options['data_train_y'][0],
 		data_valid=model_options['data_valid'], data_valid_y=model_options['data_valid_y'][0], 
 		data_test=model_options['data_test'], data_test_y=model_options['data_test_y'][0], 
 		dictionaries=model_options['dictionaries'],
+		label2index = model_options['label2index'][0],
 		embeddings = model_options['embeddings'],
 		use_bilingual=model_options['use_bilingual'], 
 		use_pretrain=model_options['use_pretrain'])
@@ -259,15 +259,17 @@ if __name__ == '__main__':
 	data.add_argument('--data_train_y', type=str, required=True, metavar='PATH', nargs=1,
                          help="training labels")
 	data.add_argument('--data_test', type=str, required=True, metavar='PATH', nargs="+",
-                         help="parallel training corpus (source, target and alignment)")
+                         help="parallel test corpus (source, target and alignment)")
 	data.add_argument('--data_test_y', type=str, required=True, metavar='PATH', nargs=1,
-                         help="training labels")
+                         help="test labels")
 	data.add_argument('--data_valid', type=str, required=True, metavar='PATH', nargs="+",
-                         help="parallel training corpus (source, target and alignment)")
+                         help="parallel validation corpus (source, target and alignment)")
 	data.add_argument('--data_valid_y', type=str, required=True, metavar='PATH', nargs=1,
-                         help="training labels")
+                         help="validation labels")
 	data.add_argument('--dictionaries', type=str, required=True, metavar='PATH', nargs="+",
                          help="network vocabularies (source and target vocabulary)")
+	data.add_argument('--label2index', type=str, required=True, metavar='PATH', nargs=1,
+                         help="target labels to index dictionary")
 	data.add_argument('--embeddings', type=str, metavar='PATH', nargs="+",
                          help="network vocabularies (source and target vocabulary)")
 	data.add_argument('--use_quest', action="store_true",
