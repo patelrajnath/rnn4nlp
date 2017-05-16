@@ -25,8 +25,12 @@ Create the vocab for training-
 
 ```sh
 
-$python utils/build_dictionary.py data/qe/train/train.src.lc
-$python utils/build_dictionary.py data/qe/train/train.mt.lc
+SOURCE
+$python utils/build_dictionary.py data/qe/train/train.src.lc 0
+$python utils/build_dictionary.py data/qe/train/train.mt.lc 0
+
+LABELS
+$python utils/build_dictionary.py data/qe/train/train.tags 1
 
 ```
 
@@ -38,13 +42,18 @@ $bash train-qe.sh
 
 ```
 
+
 ### Parts-of-Speech tagging with toy data:
 
 Create vocab for training-
 
 ```sh
 
-$python utils/build_dictionary.py data/pos/hi-en.train.txt
+SOURCE
+$python utils/build_dictionary.py data/pos/hi-en.train.txt 0
+
+LABELS
+$python utils/build_dictionary.py data/pos/hi-en.train.tags 1
 
 ```
 
@@ -55,6 +64,9 @@ And then run the training script-
 $bash train-tag.sh
 
 ```
+
+
+
 ## Publications:
 
 If you use this project, please cite the following papers:
