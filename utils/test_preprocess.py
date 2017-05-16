@@ -9,8 +9,8 @@ import numpy as np
 
 def read_pretrained_embedding(words_vector_file):
     """
-	words_vector_file: file containing the trained word embeddings
-	Usage: Returns the word2index dictionary and embedding
+        words_vector_file: file containing the trained word embeddings
+        Usage: Returns the word2index dictionary and embedding
     """
     word2idx = {}
     embedding = []
@@ -120,18 +120,13 @@ def get_aligned_src(data):
 
     return new_data
 
-def preprocess_data(data_train, data_train_y, data_test, data_test_y, data_valid, data_valid_y,
-			dictionaries, label2index, embeddings=None,
+def preprocess_data(data_test, data_test_y, dictionaries, label2index, embeddings=None,
 			use_bilingual=False, use_pretrain=False):
 	"""
 		
 	"""
 	if use_bilingual:
-		assert (len(data_train) == 3), \
-			"source, target, and alignment must be provided when using --use_bilingual"
 		assert (len(data_test) == 3), \
-			"source, target, and alignment must be provided when using --use_bilingual"
-		assert (len(data_valid) == 3), \
 			"source, target, and alignment must be provided when using --use_bilingual"
 	if use_pretrain:
 		assert embeddings, "word embedding must be provided when using --use_pretrain"
@@ -140,11 +135,11 @@ def preprocess_data(data_train, data_train_y, data_test, data_test_y, data_valid
 	
 	#get the aligned src as per the alignment file and target
 	if use_bilingual:
-		data_sets = get_aligned_src([data_train, data_test, data_valid])
-		data_train, data_test, data_valid = data_sets
+		data_sets = get_aligned_src([data_test])
+		data_test = data_sets[0]
 
 	#init empty lists for various data sets
-	w2idxs, embs, train, train_y, test, test_y, valid, valid_y = ([] for i in range(8))
+	w2idxs, embs, test, test_y = ([] for i in range(4))
 
 	if use_pretrain:
 		for pretrain_emb in embeddings:
@@ -156,32 +151,17 @@ def preprocess_data(data_train, data_train_y, data_test, data_test_y, data_valid
 			w2idxs.append(json.load(open(_dict)))
 			embs.append([])
 
-	for tf, w2idx in zip(data_train, w2idxs):
-    		train.append(word2index(tf, w2idx))
 	for tf, w2idx in zip(data_test, w2idxs):
     		test.append(word2index(tf, w2idx))
-	for tf, w2idx in zip(data_valid, w2idxs):
-    		valid.append(word2index(tf, w2idx))
 
-	label2idx = json.load(open(label2index))
-    	train_y = word2index(data_train_y, label2idx)
+        label2idx = json.load(open(label2index))
     	test_y = word2index(data_test_y, label2idx)
-    	valid_y = word2index(data_valid_y, label2idx)
-	data = [train, train_y, test, test_y, valid, valid_y, w2idxs, label2idx, embs]
-
+	data = [test, test_y, w2idxs, label2idx, embs]
 	return data
 
 if  __name__ == '__main__':
 	data = preprocess_data(
-	  data_train=['data/qe/train/train.src.lc',
-              'data/qe/train/train.mt.lc',
-              'data/qe/train/train.align'],
-	  data_train_y = 'data/qe/train/train.tags',
-          data_valid=['data/qe/dev/dev.src.lc',
-                'data/qe/dev/dev.mt.lc',
-                'data/qe/dev/dev.align'],
-	  data_valid_y = 'data/qe/dev/dev.tags',
-          data_test=['data/qe/test/test.src',
+          data_test=['data/qe/test/test.src.lc',
 		'data/qe/test/test.mt.lc',
 		'data/qe/test/test.align'],
 	  data_test_y = 'data/qe/test/test.tags',
@@ -189,6 +169,6 @@ if  __name__ == '__main__':
               'data/qe/train/train.mt.lc.json'],
 	  embeddings=['data/qe/pretrain/ep_qe.en.vector.txt',
 	      'data/qe/pretrain/ep_qe.de.vector.txt'],
-          use_bilingual=True,
-          use_pretrain=True)
+	  label2idx = 'data/qe/train/train.tags.json')
+
 	print data[0][0][0]
