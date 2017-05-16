@@ -11,4 +11,3 @@ python train.py \
 --label2index data/pos/hi-en.train.tags.json \
 --saveto \
 --use_tag 
-

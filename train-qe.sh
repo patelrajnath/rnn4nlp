@@ -12,6 +12,6 @@ python train.py \
 --embeddings data/qe/ep_qe.en.vector.txt data/qe/ep_qe.de.vector.txt \
 --saveto \
 --use_quest \
---use_bilingual \
---use_pretrain # to enable this flag you need to have pretrained word embeddings from word2vec (text)
+#--use_bilingual #\
+#--use_pretrain # to enable this flag you need to have pretrained word embeddings from word2vec (text)
 
