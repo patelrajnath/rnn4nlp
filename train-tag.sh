@@ -8,6 +8,7 @@ python train.py \
 --data_valid data/pos/hi-en.dev.txt \
 --data_valid_y data/pos/hi-en.dev.tags \
 --dictionaries data/pos/hi-en.train.txt.json \
+--label2index data/pos/hi-en.train.tags.json \
 --saveto \
 --use_tag 
 
