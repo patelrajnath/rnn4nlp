@@ -80,6 +80,11 @@ $bash test-tag.sh
 ```
 Note: You can specifiy any text for testing but dictionaries and label2index should be the same as used at training time
 
+## Detailed Description
+
+For detailed description visit the wiki page-
+https://github.com/patelrajnath/rnn4nlp/wiki
+
 ## Publications:
 
 If you use this project, please cite the following papers:
