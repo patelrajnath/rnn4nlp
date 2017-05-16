@@ -19,7 +19,7 @@ This includes the implementation of various RNN models including simple Recurren
 
 # Quick Start
 
-### Quality estimation with toy data:
+#### Quality estimation with toy data:
 
 Create the vocab for training-
 
@@ -50,7 +50,7 @@ $bash test-qe.sh
 ```
 Note: You can specifiy any text for testing but dictionaries and label2index should be the same as used at training time
 
-### Part-of-Speech tagging with toy data:
+#### Part-of-Speech tagging with toy data:
 
 Create vocab for training-
 
@@ -80,7 +80,7 @@ $bash test-tag.sh
 ```
 Note: You can specifiy any text for testing but dictionaries and label2index should be the same as used at training time
 
-### Detailed Description
+#### Detailed Description
 
 For detailed description visit the wiki page-
 https://github.com/patelrajnath/rnn4nlp/wiki
