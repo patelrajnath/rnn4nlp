@@ -48,7 +48,7 @@ Testing with new test-set-
 $bash test-qe.sh
 
 ```
-Note: You can specifiy any text for testing but dictionaries and label2index should be the same as used in the training time
+Note: You can specifiy any text for testing but dictionaries and label2index should be the same as used at training time
 
 ### Part-of-Speech tagging with toy data:
 
@@ -78,7 +78,7 @@ Testing with new test-set-
 $bash test-tag.sh
 
 ```
-Note: You can specifiy any text for testing but dictionaries and label2index should be the same as used in the training time
+Note: You can specifiy any text for testing but dictionaries and label2index should be the same as used at training time
 
 ## Publications:
 
