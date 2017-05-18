@@ -1,4 +1,4 @@
-# Recurrent Neural Networks for Natural Language Processing (rnn4nlp)
+## Recurrent Neural Networks for Natural Language Processing (rnn4nlp)
 This repository contains:
 
 (1) RNN based system for word level quality estimation. 
@@ -7,7 +7,7 @@ This repository contains:
 
 This includes the implementation of various RNN models including simple Recurrent Neural Network, Long-Short Term Memory (LSTM), DeepLSTM, and Gated Recurrent Units (GRU) aka Gated Hidden Units (GHU). The system is flexible to be used for any word level NLP tagging task like Named Entity Recognition etc.
 
-# Pre-requisites
+## Pre-requisites
 
 - python (2.7+)
 
@@ -17,9 +17,9 @@ This includes the implementation of various RNN models including simple Recurren
 
 - python-sklearn (0.17+)
 
-# Quick Start
+## Quick Start
 
-### Quality estimation with toy data:
+#### Quality estimation with toy data:
 
 Create the vocab for training-
 
@@ -50,7 +50,7 @@ $bash test-qe.sh
 ```
 Note: You can specifiy any text for testing but dictionaries and label2index should be the same as used at training time
 
-### Part-of-Speech tagging with toy data:
+#### Part-of-Speech tagging with toy data:
 
 Create vocab for training-
 
@@ -80,6 +80,11 @@ $bash test-tag.sh
 ```
 Note: You can specifiy any text for testing but dictionaries and label2index should be the same as used at training time
 
+#### Detailed Description
+
+For detailed description visit the wiki page-
+https://github.com/patelrajnath/rnn4nlp/wiki
+
 ## Publications:
 
 If you use this project, please cite the following papers:
@@ -93,7 +98,7 @@ If you use this project, please cite the following papers:
 >  address   = {Berlin, Germany},
 >  publisher = {Association for Computational Linguistics},
 >  pages     = {819--824},
->  url       = {http://www.statmt.org/wmt16/pdf/W16-2389.pdf}}
+>  url       = {http://www.statmt.org/wmt16/pdf/W16-2389.pdf } }
 
  
 > @article{patel2016recurrent,
@@ -101,7 +106,7 @@ If you use this project, please cite the following papers:
 >  author={Patel, Raj Nath and Pimpale, Prakash B and Sasikumat, M},
 >  journal={arXiv preprint arXiv:1611.04989},
 >  year={2016}
->  url = {https://arxiv.org/pdf/1611.04989.pdf} }
+>  url = {https://arxiv.org/pdf/1611.04989.pdf } }
 
 
 ## Author 
