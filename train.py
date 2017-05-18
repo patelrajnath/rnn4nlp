@@ -13,19 +13,28 @@ import json
 
 from collections import OrderedDict
 from rnn import GRU
-from utils.tools import minibatch, contextwin, shuffle
+from rnn import LSTM
+from utils.tools import minibatch, contextwin, shuffle, add_padding
 from utils.data_preprocess import preprocess_data
 from metrics.qe_eval import wmt_eval
 from metrics.pos_eval import icon_eval
 
 select_model = {
+		"GRU_adadelta_char_bilingual_pretrain": GRU.GRU_adadelta_char_bilingual_pretrain,
+		"GRU_adadelta_char": GRU.GRU_adadelta_char,
 		"GRU_adadelta_bilingual_pretrain": GRU.GRU_adadelta_bilingual_pretrain,
 		"GRU_adadelta_bilingual": GRU.GRU_adadelta_bilingual, 
 		"GRU_adadelta_pretrain": GRU.GRU_adadelta_pretrain,
 		"GRU_adadelta": GRU.GRU_adadelta,
+		"LSTM_adadelta": LSTM.LSTM_adadelta,
+		"LSTM_adadelta_pretrain": LSTM.LSTM_adadelta_pretrain,
+		"LSTM_adadelta_bilingual": LSTM.LSTM_adadelta_bilingual,
+		"LSTM_adadelta_bilingual_pretrain": LSTM.LSTM_adadelta_bilingual_pretrain,
 		}
 
 def train(dim_word=100,  # word vector dimensionality
+          dim_char=10,  # the number of LSTM units
+          max_char=10,  # the number of LSTM units
           dim=100,  # the number of LSTM units
 	  win=5, #Window size
 	  bs=5, #number of backprop through time steps
@@ -50,6 +59,8 @@ def train(dim_word=100,  # word vector dimensionality
           data_test_y = 'data/qe/test/test.tags',
           dictionaries=['data/qe/train/train.src.lc.json',
               'data/qe/train/train.mt.lc.json'],
+          character2index=['data/qe/train/train.src.lc.dict_char.json',
+              'data/qe/train/train.mt.lc.dict_char.json'],
 	  label2index = 'data/qe/train/train.tags.json',
           embeddings=['data/qe/pretrain/ep_qe.en.vector.txt',
               'data/qe/pretrain/ep_qe.de.vector.txt'],
@@ -58,6 +69,7 @@ def train(dim_word=100,  # word vector dimensionality
           use_pretrain=False,
           use_quest=False,
           use_tag=False,
+          use_char=False,
           saveto=False,
           shuffle_each_epoch=True,
     ):
@@ -65,12 +77,14 @@ def train(dim_word=100,  # word vector dimensionality
 	model_options = OrderedDict(sorted(locals().copy().items()))
 	print 'Model_Options:', model_options
 
-	model_name = model_options['use_model']
-	if use_adadelta:
+	model_name = model_options['use_model'][0]
+	if model_options['use_adadelta']:
 		model_name += '_adadelta'
-	if use_bilingual:
+	if model_options['use_char']:
+		model_name += '_char'
+	if model_options['use_bilingual']:
 		model_name += '_bilingual'
-	if use_pretrain:
+	if model_options['use_pretrain']:
 		model_name += '_pretrain'
 
 	print 'Using model:', model_name
@@ -80,9 +94,11 @@ def train(dim_word=100,  # word vector dimensionality
 		data_valid=model_options['data_valid'], data_valid_y=model_options['data_valid_y'][0], 
 		data_test=model_options['data_test'], data_test_y=model_options['data_test_y'][0], 
 		dictionaries=model_options['dictionaries'],
+		character2index=model_options['character2index'],
 		label2index = model_options['label2index'][0],
 		embeddings = model_options['embeddings'],
 		use_bilingual=model_options['use_bilingual'], 
+		use_char=model_options['use_char'], 
 		use_pretrain=model_options['use_pretrain'])
 
 	"""
@@ -101,13 +117,32 @@ def train(dim_word=100,  # word vector dimensionality
        			cPickle.dump(processed_data, fp)
     	if not os.path.exists(folder): os.mkdir(folder)
 
-	train, train_y, test, test_y, valid, valid_y, w2idxs, label2idxs, embs = processed_data
+	train, train_y, test, test_y, valid, valid_y, w2idxs, char2idxs, label2idxs, embs=processed_data
 	idx2label = dict((k,v) for v,k in label2idxs.iteritems())
+	#print len(train), len(test), len(valid)
 
-	vocsize_s = vocsize_t = 0
-        emb_s, emb_t, train_s, train_t, test_s, test_t, valid_s, valid_t = ([] for i in range(8))
+	vocsize_s = vocsize_t = vocsize_schar = vocsize_tchar = 0
+        emb_s, emb_t, train_s, train_schar, train_t, train_tchar, test_s, test_schar, test_t, test_tchar, valid_s, valid_schar, valid_t, valid_tchar = ([] for i in range(14))
 		
-	if use_bilingual or len(train) == 2:
+	if (use_bilingual or len(train) == 4) and use_char:
+		emb_s, emb_t = embs
+		train_s, train_t, train_schar, train_tchar = train
+		test_s, test_t, test_schar, test_tchar = test
+		valid_s, valid_t, valid_schar, valid_tchar = valid
+    		vocsize_s = len(w2idxs[0])
+    		vocsize_t = len(w2idxs[1])
+		vocsize_schar = len(char2idxs[0])
+		vocsize_tchar = len(char2idxs[1])
+
+	elif use_char:
+		emb_t = embs[0]
+		train_t, train_tchar = train
+		test_t, test_tchar = test
+		valid_t, valid_tchar = valid
+    		vocsize_t = len(w2idxs[0])
+		vocsize_tchar = len(char2idxs[0])
+
+	elif use_bilingual or len(train) == 2:
 		emb_s, emb_t = embs
 		train_s, train_t = train
 		test_s, test_t = test
@@ -130,10 +165,13 @@ def train(dim_word=100,  # word vector dimensionality
                     nc = nclasses,
                     de = model_options['dim_word'],
                     cs = model_options['win'],
+                    de_char = model_options['dim_char'],
+		    ne_char = vocsize_tchar,
 		    ne_src = vocsize_s,
 		    ne_tgt = vocsize_t,
 		    emb_src = emb_s,
-		    emb_tgt = emb_t )
+		    emb_tgt = emb_t,
+		    max_char = model_options['max_char'])
 
     	# train with early stopping on validation set
     	best_f1 = -numpy.inf
@@ -145,27 +183,40 @@ def train(dim_word=100,  # word vector dimensionality
 	  model_options['ce'] = e
       	  #shuffle
 	  if shuffle_each_epoch:
-      	  	shuffle([train_t, train_s, train_y], model_options['seed'])
+      	  	shuffle([train_t, train_s, train_tchar, train_y], model_options['seed'])
 
       	  tic = time.time()
       	  for k in xrange(n_batches):
             #Creating batches
 	    batch_train_s = []
-	    if use_bilingual:
+	    batch_train_char = []
+
+	    if model_options['use_bilingual']:
             	batch_train_s = train_s[k*batch_size:(k+1)*batch_size]
+	    if model_options['use_char']:
+            	batch_train_char = train_tchar[k*batch_size:(k+1)*batch_size]
 
             batch_train_t = train_t[k*batch_size:(k+1)*batch_size]
             batch_train_y = train_y[k*batch_size:(k+1)*batch_size]
             batch_err = 0
             for i in xrange(batch_size):
 		cwords_src = []
+		padded_chars = []
 		if model_options['use_bilingual']:
                 	cwords_src = contextwin(batch_train_s[i], model_options['win'])
+		if model_options['use_char']:
+			padded_chars = add_padding(batch_train_char[i], model_options['max_char'])
 
+		#print batch_train_char[0]
+		#print padded_chars
                 cwords_tgt = contextwin(batch_train_t[i], model_options['win'])
                 labels = batch_train_y[i]
 
-		if model_options['use_bilingual']:
+		if model_options['use_bilingual'] and model_options['use_char']:
+                     err = rnn.train_grad_shared(cwords_src, cwords_tgt, padded_chars, labels, model_options['lrate'])
+		elif model_options['use_char']:
+                     err = rnn.train_grad_shared(cwords_tgt, padded_chars, labels, model_options['lrate'])
+		elif model_options['use_bilingual']:
                      err = rnn.train_grad_shared(cwords_src, cwords_tgt, labels, model_options['lrate'])
 		else:
                      err = rnn.train_grad_shared(cwords_tgt, labels, model_options['lrate'])
@@ -199,6 +250,44 @@ def train(dim_word=100,  # word vector dimensionality
                                  for x_src, x_tgt in zip(valid_s, valid_t) ]
             		groundtruth_valid = [ map(lambda x: idx2label[x], y) for y in valid_y ]
             		#words_valid = [ map(lambda x: idx2word_de[x], w) for w in valid_lex]
+
+		elif model_options['use_bilingual'] and model_options['use_char']:
+			predictions_test = [ map(lambda x: idx2label[x],
+				rnn.classify(numpy.asarray(contextwin(x, 
+				model_options['win'])).astype('int32'),
+				numpy.asarray(contextwin(_x, model_options['win'])).astype('int32'),
+				numpy.asarray(add_padding(__x, 
+				model_options['max_char'])).astype('int32')))
+				for x, _x, __x in zip(test_s, test_t, test_tchar) ]
+                	groundtruth_test = [ map(lambda x: idx2label[x], y) for y in test_y ]
+                	#words_test = [ map(lambda x: idx2word[x], w) for w in test_lex]
+
+                	predictions_valid = [ map(lambda x: idx2label[x],
+                                 rnn.classify(numpy.asarray(contextwin(x, 
+				 model_options['win'])).astype('int32'),
+				 numpy.asarray(contextwin(_x, model_options['win'])).astype('int32'),
+				 numpy.asarray(add_padding(__x, 
+				 model_options['max_char'])).astype('int32')))
+                                 for x, _x, __x in zip(valid_s, valid_t, valid_tchar) ]
+                	groundtruth_valid = [ map(lambda x: idx2label[x], y) for y in valid_y ]
+
+		elif model_options['use_char']:
+			predictions_test = [ map(lambda x: idx2label[x],
+				rnn.classify(numpy.asarray(contextwin(x, 
+				model_options['win'])).astype('int32'),
+				numpy.asarray(add_padding(_x, 
+				model_options['max_char'])).astype('int32')))
+                                for x, _x, in zip(test_t, test_tchar) ]
+                	groundtruth_test = [ map(lambda x: idx2label[x], y) for y in test_y ]
+                	#words_test = [ map(lambda x: idx2word[x], w) for w in test_lex]
+
+                	predictions_valid = [ map(lambda x: idx2label[x],
+				rnn.classify(numpy.asarray(contextwin(x, 
+				model_options['win'])).astype('int32'),
+				numpy.asarray(add_padding(_x,
+				model_options['max_char'])).astype('int32')))
+                                for x, _x, in zip(valid_t, valid_tchar) ]
+                	groundtruth_valid = [ map(lambda x: idx2label[x], y) for y in valid_y ]
 		else:
                 	#evaluation // back into the real world : idx -> words
                 	predictions_test = [ map(lambda x: idx2label[x],
@@ -254,6 +343,8 @@ if __name__ == '__main__':
 	parser = argparse.ArgumentParser()
 
 	data = parser.add_argument_group('data sets; model loading and saving')
+	data.add_argument('--use_model', type=str, required=True, metavar='PATH', nargs=1,
+                         help="model name; GRU, LSTM, DeepLSTM, RNN (default GRU)")
 	data.add_argument('--data_train', type=str, required=True, metavar='PATH', nargs="+",
                          help="parallel training corpus (source, target and alignment)")
 	data.add_argument('--data_train_y', type=str, required=True, metavar='PATH', nargs=1,
@@ -268,6 +359,8 @@ if __name__ == '__main__':
                          help="validation labels")
 	data.add_argument('--dictionaries', type=str, required=True, metavar='PATH', nargs="+",
                          help="network vocabularies (source and target vocabulary)")
+	data.add_argument('--character2index', type=str, required=True, metavar='PATH', nargs="+",
+                         help="character vocabularies (source and target vocabulary)")
 	data.add_argument('--label2index', type=str, required=True, metavar='PATH', nargs=1,
                          help="target labels to index dictionary")
 	data.add_argument('--embeddings', type=str, metavar='PATH', nargs="+",
@@ -278,6 +371,8 @@ if __name__ == '__main__':
                          help="use for tagging task (default: %(default)s)")
 	data.add_argument('--use_bilingual', action="store_true",
                          help="use bilingual model (default: %(default)s)")
+	data.add_argument('--use_char', action="store_true",
+                         help="use character as an additional feature(default: %(default)s)")
 	data.add_argument('--use_pretrain', action="store_true",
                          help="use pretarining (default: %(default)s)")
 	data.add_argument('--use_adadelta', action="store_false",
