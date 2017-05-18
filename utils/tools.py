@@ -4,6 +4,14 @@ import random
 import theano
 import numpy as np
 
+def add_padding(seqs_x, maxlen):
+    lengths_x = [len(s) for s in seqs_x]
+    n_samples = len(seqs_x)
+    x = np.zeros((maxlen, n_samples)).astype('int64')
+    for idx, s_x in enumerate(seqs_x):
+        x[:lengths_x[idx], idx] = s_x[:maxlen]
+    return np.transpose(x)
+
 def numpy_floatX(data):
     return np.asarray(data, dtype=theano.config.floatX)
 
