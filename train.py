@@ -21,11 +21,17 @@ from metrics.pos_eval import icon_eval
 
 select_model = {
 		"GRU_adadelta_char_bilingual_pretrain": GRU.GRU_adadelta_char_bilingual_pretrain,
+		"GRU_adadelta_char_bilingual": GRU.GRU_adadelta_char_bilingual,
 		"GRU_adadelta_char": GRU.GRU_adadelta_char,
+		"GRU_adadelta_char_pretrain": GRU.GRU_adadelta_char_pretrain,
 		"GRU_adadelta_bilingual_pretrain": GRU.GRU_adadelta_bilingual_pretrain,
 		"GRU_adadelta_bilingual": GRU.GRU_adadelta_bilingual, 
 		"GRU_adadelta_pretrain": GRU.GRU_adadelta_pretrain,
 		"GRU_adadelta": GRU.GRU_adadelta,
+		"GRU_pretrain": GRU.GRU_pretrain,
+		"GRU": GRU.GRU,
+		"LSTM": LSTM.LSTM,
+		"LSTM_pretrain": LSTM.LSTM_pretrain,
 		"LSTM_adadelta": LSTM.LSTM_adadelta,
 		"LSTM_adadelta_pretrain": LSTM.LSTM_adadelta_pretrain,
 		"LSTM_adadelta_bilingual": LSTM.LSTM_adadelta_bilingual,
@@ -43,7 +49,7 @@ def train(dim_word=100,  # word vector dimensionality
           use_model='GRU', #Choose the model from- LSTM, DEEPLSTM, RNN, 
           patience=10,  # early stopping patience
           max_epochs=50,
-          lrate=0.0001,  # learning rate
+          lrate=0.0005,  # learning rate
           maxlen=100,  # maximum length of the description
           data_train=['data/qe/train/train.src.lc',
               'data/qe/train/train.mt.lc',
@@ -64,7 +70,7 @@ def train(dim_word=100,  # word vector dimensionality
 	  label2index = 'data/qe/train/train.tags.json',
           embeddings=['data/qe/pretrain/ep_qe.en.vector.txt',
               'data/qe/pretrain/ep_qe.de.vector.txt'],
-	  use_adadelta=True,
+	  use_adadelta=False,
           use_bilingual=False,
           use_pretrain=False,
           use_quest=False,
@@ -72,6 +78,7 @@ def train(dim_word=100,  # word vector dimensionality
           use_char=False,
           saveto=False,
           shuffle_each_epoch=True,
+	  load_data=None,
     ):
 
 	model_options = OrderedDict(sorted(locals().copy().items()))
@@ -88,8 +95,13 @@ def train(dim_word=100,  # word vector dimensionality
 		model_name += '_pretrain'
 
 	print 'Using model:', model_name
-	
-	processed_data = preprocess_data(data_train=model_options['data_train'], 
+
+	processed_data = []
+	if load_data:
+	    with gzip.open(load_data[0],'rb') as fp:
+			processed_data = cPickle.load(fp)
+	else:
+	    processed_data = preprocess_data(data_train=model_options['data_train'], 
 		data_train_y=model_options['data_train_y'][0],
 		data_valid=model_options['data_valid'], data_valid_y=model_options['data_valid_y'][0], 
 		data_test=model_options['data_test'], data_test_y=model_options['data_test_y'][0], 
@@ -218,10 +230,14 @@ def train(dim_word=100,  # word vector dimensionality
                      err = rnn.train_grad_shared(cwords_tgt, padded_chars, labels, model_options['lrate'])
 		elif model_options['use_bilingual']:
                      err = rnn.train_grad_shared(cwords_src, cwords_tgt, labels, model_options['lrate'])
-		else:
+		elif model_options['use_adadelta']:
                      err = rnn.train_grad_shared(cwords_tgt, labels, model_options['lrate'])
+		else:
+		     err = rnn.train(cwords_tgt, labels, model_options['lrate'])
+                
+		if model_options['use_adadelta']:
+		     rnn.train_update(model_options['lrate'])
 
-                rnn.train_update(model_options['lrate'])
                 rnn.normalize()
                 
                 if model_options['verbose']:
@@ -233,25 +249,7 @@ def train(dim_word=100,  # word vector dimensionality
 		predictions_test, groundtruth_test, predictions_valid, \
 			groundtruth_valid = ([] for i in range(4))
 
-		if model_options['use_bilingual']:
-			#evaluation // back into the real world : idx -> words
-            		predictions_test = [ map(lambda x: idx2label[x],
-                                 rnn.classify(numpy.asarray(contextwin(x_src, 
-				 model_options['win'])).astype('int32'),
-                                 numpy.asarray(contextwin(x_tgt,model_options['win'])).astype('int32')))
-                                 for x_src, x_tgt in zip(test_s, test_t) ]
-            		groundtruth_test = [ map(lambda x: idx2label[x], y) for y in test_y ]
-           		#words_test = [ map(lambda x: idx2word_de[x], w) for w in test_lex]
-
-            		predictions_valid = [ map(lambda x: idx2label[x],
-                                 rnn.classify(numpy.asarray(contextwin(x_src, 
-				 model_options['win'])).astype('int32'),
-                                 numpy.asarray(contextwin(x_tgt,model_options['win'])).astype('int32')))
-                                 for x_src, x_tgt in zip(valid_s, valid_t) ]
-            		groundtruth_valid = [ map(lambda x: idx2label[x], y) for y in valid_y ]
-            		#words_valid = [ map(lambda x: idx2word_de[x], w) for w in valid_lex]
-
-		elif model_options['use_bilingual'] and model_options['use_char']:
+		if model_options['use_bilingual'] and model_options['use_char']:
 			predictions_test = [ map(lambda x: idx2label[x],
 				rnn.classify(numpy.asarray(contextwin(x, 
 				model_options['win'])).astype('int32'),
@@ -270,6 +268,25 @@ def train(dim_word=100,  # word vector dimensionality
 				 model_options['max_char'])).astype('int32')))
                                  for x, _x, __x in zip(valid_s, valid_t, valid_tchar) ]
                 	groundtruth_valid = [ map(lambda x: idx2label[x], y) for y in valid_y ]
+
+		elif model_options['use_bilingual']:
+			#evaluation // back into the real world : idx -> words
+            		predictions_test = [ map(lambda x: idx2label[x],
+                                 rnn.classify(numpy.asarray(contextwin(x_src, 
+				 model_options['win'])).astype('int32'),
+                                 numpy.asarray(contextwin(x_tgt,model_options['win'])).astype('int32')))
+                                 for x_src, x_tgt in zip(test_s, test_t) ]
+            		groundtruth_test = [ map(lambda x: idx2label[x], y) for y in test_y ]
+           		#words_test = [ map(lambda x: idx2word_de[x], w) for w in test_lex]
+
+            		predictions_valid = [ map(lambda x: idx2label[x],
+                                 rnn.classify(numpy.asarray(contextwin(x_src, 
+				 model_options['win'])).astype('int32'),
+                                 numpy.asarray(contextwin(x_tgt,model_options['win'])).astype('int32')))
+                                 for x_src, x_tgt in zip(valid_s, valid_t) ]
+            		groundtruth_valid = [ map(lambda x: idx2label[x], y) for y in valid_y ]
+            		#words_valid = [ map(lambda x: idx2word_de[x], w) for w in valid_lex]
+
 
 		elif model_options['use_char']:
 			predictions_test = [ map(lambda x: idx2label[x],
@@ -345,6 +362,8 @@ if __name__ == '__main__':
 	data = parser.add_argument_group('data sets; model loading and saving')
 	data.add_argument('--use_model', type=str, required=True, metavar='PATH', nargs=1,
                          help="model name; GRU, LSTM, DeepLSTM, RNN (default GRU)")
+	data.add_argument('--load_data', type=str, required=False, metavar='PATH', nargs=1,
+                         help="path to the processed data file")
 	data.add_argument('--data_train', type=str, required=True, metavar='PATH', nargs="+",
                          help="parallel training corpus (source, target and alignment)")
 	data.add_argument('--data_train_y', type=str, required=True, metavar='PATH', nargs=1,
@@ -375,7 +394,7 @@ if __name__ == '__main__':
                          help="use character as an additional feature(default: %(default)s)")
 	data.add_argument('--use_pretrain', action="store_true",
                          help="use pretarining (default: %(default)s)")
-	data.add_argument('--use_adadelta', action="store_false",
+	data.add_argument('--use_adadelta', action="store_true",
                          help="use adaptive learning rate (default: %(default)s)")
 	data.add_argument('--saveto', action="store_true",
                          help="use adaptive learning rate (default: %(default)s)")
