@@ -1,6 +1,5 @@
 #!/bin/bash
 
-<< comments
 python train.py \
 --data_train data/pos/icon2016/hi-en.train.txt \
 --data_train_y data/pos/icon2016/hi-en.train.tags \
@@ -13,10 +12,11 @@ python train.py \
 --label2index data/pos/icon2016/hi-en.train.tags.json \
 --use_model GRU \
 --use_char \
+--use_adadelta \
 --saveto \
 --use_tag
-comments
 
+<< comments
 python train.py \
 --data_train data/pos/hi-en.train.txt \
 --data_train_y data/pos/hi-en.train.tags \
@@ -30,3 +30,4 @@ python train.py \
 --use_model GRU \
 --saveto \
 --use_tag 
+comments

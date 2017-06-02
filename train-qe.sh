@@ -11,10 +11,13 @@ THEANO_FLAGS=optimizer=None python train.py \
 --character2index data/qe/train/train.src.lc.dict_char.json data/qe/train/train.mt.lc.dict_char.json \
 --label2index data/qe/train/train.tags.json \
 --embeddings data/qe/ep_qe.en.vector.txt data/qe/ep_qe.de.vector.txt \
---use_model GRU \
+--use_model LSTM \
 --saveto \
 --use_quest \
---use_char \
-#--use_bilingual \
+--use_pretrain \
+--use_adadelta \
+--use_bilingual \
+#--load_data quest.data_LSTM_pretrain.pkl.gz \
+#--use_char \
 #--use_pretrain # to enable this flag you need to have pretrained word embeddings from word2vec (text)
 
