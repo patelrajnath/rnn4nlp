@@ -39,7 +39,7 @@ $python utils/build_dictionary.py data/qe/train/train.tags 1
 
 ```
 
-Note: --use_char switch only available with GRU model
+Note: --use_char switch is available with only GRU model
 
 And then run the training script-
 
