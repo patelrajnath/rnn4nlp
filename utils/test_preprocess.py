@@ -7,16 +7,18 @@ import json
 
 import numpy as np
 
-def read_pretrained_embedding(words_vector_file):
+def read_pretrained_embedding(words_vector_file, use_char=False):
     """
-        words_vector_file: file containing the trained word embeddings
-        Usage: Returns the word2index dictionary and embedding
+	words_vector_file: file containing the trained word embeddings
+	Usage: Returns the word2index dictionary and embedding
     """
     word2idx = {}
+    char2idx = {}
     embedding = []
     fv = codecs.open(words_vector_file, 'r', 'utf-8')
     flog = codecs.open(words_vector_file+'.log_duplicates', 'w', 'utf-8')
     idx = 0
+    char_idx = 0
     for line in fv:
         words = line.split(' ', 1)
         w = words[0].strip()
@@ -26,10 +28,21 @@ def read_pretrained_embedding(words_vector_file):
             idx += 1
         else:
             flog.write(line)
+
+	if use_char:
+	  for ch in list(w):
+            ch = ch.strip()
+            if ch not in char2idx:
+                char2idx[ch.strip()] = char_idx
+                char_idx += 1
+
     fv.close()
     flog.close()
 
-    return word2idx, embedding
+    if use_char:
+    	return word2idx, char2idx, embedding
+    else:
+    	return word2idx, embedding
 
 def word2index(fname, word2idx):
 
@@ -56,15 +69,48 @@ def word2index(fname, word2idx):
         
     return data
 
+def char2index(filename, char2idx):
+    """
+	fname: the file name to be converted into idx representation
+	char2idx: a mapping from characters to ids
 
-def process_embedding(words_vector_file):
+	Usage: returns processed data with characters converted to ids
+    """
+    fin = codecs.open(filename, 'r', 'utf-8')
+    data = []
+    
+    for line in fin:
+        sent_idx = []
+        words = line.strip().split()
+        for word in words:
+            w = word.strip()
+            word_idx = []
+            for ch in list(w):
+                ch = ch.strip()
+                if ch in char2idx:
+                    word_idx.append(char2idx[ch])
+                else:
+                    word_idx.append(char2idx['UNK'])
+            sent_idx.append(np.asarray(word_idx))
+        data.append(np.asarray(sent_idx))
+        
+    return data
+
+def process_embedding(words_vector_file, use_char=False):
     """
 	fname: the file name containing the text to be processed
 	words_vector_file: pretrained word embedding from word2vec (text-model)
 
 	Usage: Returns mapping of words2index and prepared data
     """
-    word2idx , emb = read_pretrained_embedding(words_vector_file)
+    word2idx = {}
+    char2idx = {}
+    emb = []
+
+    if use_char:
+    	word2idx, char2idx, emb = read_pretrained_embedding(words_vector_file, use_char)
+    else:
+    	word2idx, emb = read_pretrained_embedding(words_vector_file, use_char)
     ne = len(emb)
     de = len(emb[0])
 
@@ -75,7 +121,10 @@ def process_embedding(words_vector_file):
     emb.append([0] * de)
     emb.append([0] * de)
 
-    return word2idx, emb
+    if use_char:
+    	return word2idx, char2idx, emb
+    else:
+    	return word2idx, emb
 
 def get_aligned_src(data):
 
@@ -120,8 +169,9 @@ def get_aligned_src(data):
 
     return new_data
 
-def preprocess_data(data_test, data_test_y, dictionaries, label2index, embeddings=None,
-			use_bilingual=False, use_pretrain=False):
+def preprocess_data(data_test, data_test_y,
+			dictionaries, label2index, character2index=None, embeddings=None,
+			use_bilingual=False, use_pretrain=False, use_char=False):
 	"""
 		
 	"""
@@ -130,6 +180,10 @@ def preprocess_data(data_test, data_test_y, dictionaries, label2index, embedding
 			"source, target, and alignment must be provided when using --use_bilingual"
 	if use_pretrain:
 		assert embeddings, "word embedding must be provided when using --use_pretrain"
+	if use_char:
+		assert character2index, "character2index dictionaries must be provided when using --use_char"
+	if use_char and use_bilingual:
+		assert len(character2index) == 2, "character2index dictionaries for both source and target must be provided when using --use_char and --use_bilingual"
 	if use_pretrain and use_bilingual:
 		assert len(embeddings) == 2, "enbedding for both source and target must be provided when using --use_pretrain and --use_bilingual"
 	
@@ -139,36 +193,65 @@ def preprocess_data(data_test, data_test_y, dictionaries, label2index, embedding
 		data_test = data_sets[0]
 
 	#init empty lists for various data sets
-	w2idxs, embs, test, test_y = ([] for i in range(4))
+	w2idxs, char2idxs, embs, test, test_y = ([] for i in range(5))
 
-	if use_pretrain:
+	if use_char and  use_pretrain:
+		for pretrain_emb in embeddings:
+			w2idx, char2idx, emb = process_embedding(pretrain_emb, use_char)
+			w2idxs.append(w2idx)
+			char2idxs.append(char2idx)
+			embs.append(emb)
+	elif use_pretrain:
 		for pretrain_emb in embeddings:
 			w2idx, emb = process_embedding(pretrain_emb)
 			w2idxs.append(w2idx)
 			embs.append(emb)
-	else:
+	elif use_char:
+		for _dict, _dict_char in zip(dictionaries, character2index):
+			w2idxs.append(json.load(open(_dict)))
+			char2idxs.append(json.load(open(_dict_char)))
+			embs.append([])
+	else:	
 		for _dict in dictionaries:
 			w2idxs.append(json.load(open(_dict)))
-			embs.append([])
+			embs.append([])	
 
 	for tf, w2idx in zip(data_test, w2idxs):
     		test.append(word2index(tf, w2idx))
+	
+	if use_char:
+		for tf, char2idx in zip(data_test, char2idxs):
+    			test.append(char2index(tf, char2idx))
 
-        label2idx = json.load(open(label2index))
+	label2idx = json.load(open(label2index))
     	test_y = word2index(data_test_y, label2idx)
-	data = [test, test_y, w2idxs, label2idx, embs]
+	data = [test, test_y, w2idxs, char2idxs, label2idx, embs]
+
 	return data
 
 if  __name__ == '__main__':
 	data = preprocess_data(
+	  data_train=['data/qe/train/train.src.lc',
+              'data/qe/train/train.mt.lc',
+              'data/qe/train/train.align'],
+	  data_train_y = 'data/qe/train/train.tags',
+          data_valid=['data/qe/dev/dev.src.lc',
+                'data/qe/dev/dev.mt.lc',
+                'data/qe/dev/dev.align'],
+	  data_valid_y = 'data/qe/dev/dev.tags',
           data_test=['data/qe/test/test.src.lc',
 		'data/qe/test/test.mt.lc',
 		'data/qe/test/test.align'],
 	  data_test_y = 'data/qe/test/test.tags',
           dictionaries=['data/qe/train/train.src.lc.json',
               'data/qe/train/train.mt.lc.json'],
-	  embeddings=['data/qe/pretrain/ep_qe.en.vector.txt',
-	      'data/qe/pretrain/ep_qe.de.vector.txt'],
-	  label2idx = 'data/qe/train/train.tags.json')
+          character2index=['data/qe/train/train.src.lc.dict_char.json',
+              'data/qe/train/train.mt.lc.dict_char.json'],
+	  label2index = 'data/qe/train/train.tags.json',
+	  embeddings=['data/qe/ep_qe.en.vector.txt',
+	      'data/qe/ep_qe.de.vector.txt'],
+          use_bilingual=False,
+          use_pretrain=False,
+	  use_char=True)
 
-	print data[0][0][0]
+	print data[0][2][0]
