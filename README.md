@@ -39,6 +39,8 @@ $python utils/build_dictionary.py data/qe/train/train.tags 1
 
 ```
 
+Note: --use_char switch only available with GRU model
+
 And then run the training script-
 
 ```sh
@@ -64,13 +66,15 @@ Create vocab for training-
 WORD INPUT
 $python utils/build_dictionary.py data/pos/hi-en.train.txt 0
 
-CHARACTER INPUT (--use_char switch)
+CHARACTER INPUT (-use_char switch)
 $python utils/build_char_dictionary.py data/pos/hi-en.train.txt
 
 LABELS
 $python utils/build_dictionary.py data/pos/hi-en.train.tags 1
 
 ```
+
+#
 
 And then run the training script-
 
