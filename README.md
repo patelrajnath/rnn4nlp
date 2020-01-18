@@ -1,3 +1,5 @@
+Thsi project is not maintained anymore. There is a pytorch based implimentation for this repository is available at- https://github.com/patelrajnath/dl4nlp-py
+
 ## Recurrent Neural Networks for Natural Language Processing (rnn4nlp)
 This repository contains:
 
